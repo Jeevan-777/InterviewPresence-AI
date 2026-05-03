@@ -68,17 +68,7 @@ The system supports Technical, HR, and Behavioral interviews with performance an
 
 # AI Workflow
 
-User Response
-      ↓
-Video Analysis (Face + Eye Contact)
-      ↓
-Audio Analysis (Speech Activity)
-      ↓
-Speech-to-Text Conversion
-      ↓
-Semantic Similarity Scoring
-      ↓
-Final AI Evaluation Score
+User Response-->Video Analysis (Face + Eye Contact)-->Audio Analysis (Speech Activity)-->Speech-to-Text Conversion-->Semantic Similarity Scoring-->Final AI Evaluation Score
 
 ---
 
