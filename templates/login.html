@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - InterviewPresence AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ─── Light Theme Variables ─── */
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-light: #f9fafb;
+            --surface: #ffffff;
+            --brand-panel-bg: linear-gradient(135deg, #eef2ff 0%, #f9fafb 100%);
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --input-bg: #f9fafb;
+            --input-border: #d1d5db;
+            --input-focus: rgba(79, 70, 229, 0.2);
+            --input-hover-border: #a5b4fc;
+            --placeholder: #9ca3af;
+        }
+
+        /* ─── Dark Theme Overrides ─── */
+        [data-theme="dark"] {
+            --bg-light: #111827;
+            --surface: #1f2937;
+            --brand-panel-bg: linear-gradient(135deg, #1e1b4b 0%, #111827 100%);
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --border: #374151;
+            --input-bg: #111827;
+            --input-border: #4b5563;
+            --input-hover-border: #6366f1;
+            --placeholder: #6b7280;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .split-layout {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+            background: var(--surface);
+            transition: background-color 0.3s ease;
+        }
+
+        /* ─── Left Panel: Brand ─── */
+        .brand-panel {
+            flex: 1;
+            background: var(--brand-panel-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-right: 1px solid var(--border);
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* Dot pattern overlay — uses var(--border) so it auto-adapts */
+        .brand-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-image: radial-gradient(var(--border) 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.5;
+            z-index: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .brand-content {
+            position: relative;
+            z-index: 10;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .illustration-container {
+            width: 240px;
+            height: 240px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .brand-text h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            letter-spacing: -0.025em;
+            transition: color 0.3s ease;
+        }
+
+        .brand-text p {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            transition: color 0.3s ease;
+        }
+
+        /* ─── Right Panel: Form ─── */
+        .form-panel {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background-color: var(--bg-light);
+            transition: background-color 0.3s ease;
+        }
+
+        .form-card {
+            background: var(--surface);
+            max-width: 440px;
+            width: 100%;
+            padding: 3rem;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+            text-align: left;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .form-header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .form-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-main);
+            transition: color 0.3s ease;
+        }
+
+        .input-group input {
+            padding: 0.875rem 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--input-border);
+            background-color: var(--input-bg);
+            font-size: 1rem;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) inset;
+        }
+
+        .input-group input:hover {
+            border-color: var(--input-hover-border);
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--input-focus);
+            background-color: var(--surface);
+        }
+
+        .input-group input::placeholder {
+            color: var(--placeholder);
+        }
+
+        .auth-btn {
+            margin-top: 0.5rem;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.875rem 1.5rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+        }
+
+        .auth-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+        }
+
+        .auth-link {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            transition: color 0.3s ease;
+        }
+
+        .auth-link a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s ease;
+            margin-left: 0.25rem;
+        }
+
+        .auth-link a:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        /* ─── Theme Toggle ─── */
+        .theme-toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            z-index: 9999;
+        }
+
+        .theme-toggle-btn:hover {
+            background-color: var(--border);
+            color: var(--text-main);
+        }
+
+        .theme-toggle-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .fixed-theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        @media (max-width: 900px) {
+            .split-layout {
+                flex-direction: column;
+            }
+
+            .brand-panel {
+                flex: none;
+                padding: 3rem 1.5rem;
+            }
+
+            .illustration-container {
+                width: 180px;
+                height: 180px;
+            }
+
+            .brand-text h1 {
+                font-size: 2rem;
+            }
+
+            .form-panel {
+                padding: 2rem 1.5rem;
+                align-items: flex-start;
+            }
+
+            .form-card {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Theme Toggle (fixed, top-right) -->
+    <button id="themeToggle" class="theme-toggle-btn fixed-theme-toggle" aria-label="Toggle Theme">
+        <svg id="sunIcon" style="display: none;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+    </button>
+
+    <div class="split-layout">
+
+        <!-- Left Panel -->
+        <div class="brand-panel">
+            <div class="brand-content">
+                <div class="illustration-container">
+                    <svg width="100%" height="100%" viewBox="0 0 240 240" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="120" cy="120" r="100" fill="#ffffff" opacity="0.6" />
+                        <circle cx="120" cy="120" r="75" fill="#ffffff" opacity="0.9" />
+                        <rect x="70" y="80" width="100" height="70" rx="20" fill="white" stroke="#4F46E5"
+                            stroke-width="6" />
+                        <rect x="80" y="90" width="80" height="40" rx="10" fill="#1E1B4B" />
+                        <ellipse cx="102" cy="110" rx="5" ry="7" fill="#818CF8" />
+                        <ellipse cx="138" cy="110" rx="5" ry="7" fill="#818CF8" />
+                        <path d="M 110 120 Q 120 125 130 120" stroke="#818CF8" stroke-width="3"
+                            stroke-linecap="round" />
+                        <path d="M 90 80 L 80 60" stroke="#4F46E5" stroke-width="6" stroke-linecap="round" />
+                        <circle cx="80" cy="60" r="6" fill="#F59E0B" />
+                        <path d="M 150 80 L 160 60" stroke="#4F46E5" stroke-width="6" stroke-linecap="round" />
+                        <circle cx="160" cy="60" r="6" fill="#4F46E5" />
+                        <rect x="160" y="140" width="50" height="30" rx="8" fill="white" stroke="#4F46E5"
+                            stroke-width="3" />
+                        <path d="M 170 155 L 180 155 M 170 160 L 190 160" stroke="#4F46E5" stroke-width="3"
+                            stroke-linecap="round" />
+                        <rect x="30" y="100" width="40" height="40" rx="10" fill="#4F46E5" />
+                        <path d="M 40 120 L 45 125 L 60 110" stroke="white" stroke-width="4" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h1>Meet your AI Interview Coach</h1>
+                    <p>Practice real technical interviews, get instant feedback, and track your progress to become
+                        placement-ready.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="form-panel">
+            <div class="form-card">
+
+                <div class="form-header">
+                    <h2>Welcome Back</h2>
+                    <p>Login to continue your interview practice</p>
+                </div>
+
+                <form method="POST" class="auth-form">
+
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input type="text" name="username" placeholder="Enter your username" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" name="password" placeholder="Enter your password" required>
+                    </div>
+
+                    <button type="submit" class="auth-btn">
+                        Login
+                    </button>
+
+                </form>
+
+                <div class="auth-link">
+                    New user?
+                    <a href="/register">Create account</a>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- THEME SCRIPT -->
+    <script>
+        const savedThemeInit = localStorage.getItem('theme');
+        if (savedThemeInit === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const sunIcon = document.getElementById('sunIcon');
+            const moonIcon = document.getElementById('moonIcon');
+            const themeToggleBtn = document.getElementById('themeToggle');
+
+            const syncIcons = (theme) => {
+                if (theme === 'dark') {
+                    if (sunIcon) sunIcon.style.display = 'block';
+                    if (moonIcon) moonIcon.style.display = 'none';
+                } else {
+                    if (sunIcon) sunIcon.style.display = 'none';
+                    if (moonIcon) moonIcon.style.display = 'block';
+                }
+            };
+
+            syncIcons(localStorage.getItem('theme') || 'light');
+
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    const currentTheme = document.documentElement.getAttribute('data-theme');
+                    const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', targetTheme);
+                    localStorage.setItem('theme', targetTheme);
+                    syncIcons(targetTheme);
+                });
+            }
+        });
+    </script>
+
+</body>
+
+</html>

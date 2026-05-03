@@ -1,0 +1,873 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Interview - InterviewPresence AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-light: #f9fafb;
+            --surface: #ffffff;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Topbar Header */
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        .brand-title .logo-icon {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+
+        /* Compact Header (Session Info) */
+        .session-info-bar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+        }
+
+        .session-badges {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .badge {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            color: var(--text-main);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            background: #eef2ff;
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem;
+            width: 100%;
+            flex: 1;
+            display: grid;
+            grid-template-columns: 3fr 2fr;
+            gap: 2.5rem;
+        }
+
+        /* Left: Question Panel */
+        .question-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .question-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            flex-grow: 1;
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .ai-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: var(--bg-light);
+            border: 3px solid #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.15), 0 0 0 4px rgba(79, 70, 229, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: float-avatar 4s ease-in-out infinite, gentle-glow 4s ease-in-out infinite;
+            flex-shrink: 0;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .ai-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        @keyframes float-avatar {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes gentle-glow {
+            0% { box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.15), 0 0 0 4px rgba(79, 70, 229, 0.05); }
+            50% { box-shadow: 0 8px 12px -1px rgba(79, 70, 229, 0.25), 0 0 0 6px rgba(79, 70, 229, 0.1); }
+            100% { box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.15), 0 0 0 4px rgba(79, 70, 229, 0.05); }
+        }
+
+        .question-text {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.4;
+            margin-bottom: 1.25rem;
+            letter-spacing: -0.01em;
+        }
+
+        /* Answer Status Block */
+        .answer-status {
+            margin: 20px 0;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        .recording-text {
+            font-size: 16px;
+            color: #a78bfa;
+            margin-bottom: 8px;
+            font-weight: 500;
+            animation: answer-pulse 1.5s infinite;
+        }
+
+        .helper-text {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        @keyframes answer-pulse {
+            0%   { opacity: 0.6; }
+            50%  { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .guidance-panel {
+            margin-top: auto;
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .guidance-panel h4 {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .guidance-panel h4 svg {
+            color: var(--primary);
+        }
+
+        .guidance-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .guidance-list li {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .guidance-list li::before {
+            content: "•";
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        @media (max-width: 640px) {
+            .guidance-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .progress-info {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        #progressFill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Right: Video Panel & Timer */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .timer-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .timer-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .timer-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .timer-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            display: flex;
+            align-items: baseline;
+            gap: 0.25rem;
+        }
+
+        .timer-value.urgent {
+            color: var(--danger);
+            animation: pulse 1s infinite;
+        }
+
+        .timer-value span.sec {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .video-container {
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            aspect-ratio: 4/3;
+        }
+
+        .video-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, transparent 100%);
+            color: white;
+        }
+
+        .camera-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .recording-badge {
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            backdrop-filter: blur(4px);
+            animation: pulse-badge 2s infinite;
+        }
+
+        .recording-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background-color: #000;
+            transform: scaleX(-1);
+            /* Mirror effect */
+        }
+
+        @keyframes pulse {
+            0%   { opacity: 1; }
+            50%  { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes pulse-badge {
+            0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70%  { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .video-container {
+                max-width: 600px;
+                margin: 0 auto;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .session-info-bar {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .session-badges {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+
+    <!-- THEME INJECTION -->
+    <style>
+        [data-theme="dark"] {
+            --bg-light: #111827;
+            --bg-base: #111827;
+            --bg: #111827;
+            --surface: #1f2937;
+            --card-bg: #1f2937;
+            --text-main: #f9fafb;
+            --text-primary: #f9fafb;
+            --text-muted: #9ca3af;
+            --text-secondary: #9ca3af;
+            --border: #374151;
+            --card-border: #374151;
+            --icon-bg: #374151;
+            --gradient-text: linear-gradient(135deg, #f9fafb 0%, #9ca3af 100%);
+        }
+
+        body, nav, .topbar, .session-info-bar, .question-card, .timer-card, .video-container, .badge, .status-badge, .guidance-panel, .guidance-text, span, h4, div, .subject-card, .difficulty-card, .feature-card, .stats-empty-state, .split-layout, .brand-panel, .form-card, section, header, main, h1, h2, h3, p {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .theme-toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted, var(--text-secondary, var(--primary, #6b7280)));
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            z-index: 9999;
+        }
+
+        .theme-toggle-btn:hover {
+            background-color: var(--border, var(--card-border, #e5e7eb));
+            color: var(--text-main, var(--text-primary, #111827));
+        }
+
+        .theme-toggle-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .fixed-theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1.5rem;
+            background: var(--surface, var(--card-bg, #ffffff));
+            border: 1px solid var(--border, var(--card-border, #e5e7eb));
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- Topbar -->
+    <div class="topbar">
+        
+        <!-- THEME TOGGLE -->
+        <button id="themeToggle" class="theme-toggle-btn" aria-label="Toggle Theme">
+            <svg id="sunIcon" style="display: none;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+            <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+        </button>
+
+        <div class="brand-title">
+            <img src="/static/images/ai-mascot.png" alt="AI Logo" class="logo-icon">
+            InterviewPresence AI
+        </div>
+    </div>
+
+    <!-- Session Header -->
+    <div class="session-info-bar">
+        <div class="session-badges">
+            <div class="badge">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <span id="displaySubject">General Interview</span>
+            </div>
+            <div class="badge">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span id="displayDifficulty">Normal</span>
+            </div>
+        </div>
+        <div class="status-badge" id="status">
+            Initializing Session...
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- LEFT: Question Panel -->
+        <div class="question-panel">
+
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span>Interview Progress</span>
+                    <span>Question <span id="qNum">1</span> of <span id="qTotal"></span></span>
+                </div>
+                <div class="progress-bar">
+                    <div id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <div class="ai-header">
+                    <div class="ai-avatar">
+                        <img src="/static/images/ai-mascot.png" alt="AI Interviewer" />
+                    </div>
+                </div>
+
+                <div id="question" class="question-text">Loading question...</div>
+
+                <div class="answer-status">
+                    <p class="recording-text">&#127908; Recording your answer...</p>
+                    <p class="helper-text">&#9201; Stay concise and speak clearly</p>
+                </div>
+
+                <div class="guidance-panel">
+                    <h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Interview Tips
+                    </h4>
+                    <ul class="guidance-list">
+                        <li>Speak clearly</li>
+                        <li>Maintain eye contact</li>
+                        <li>Structure your answer logically</li>
+                        <li>Keep responses concise</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT: Video Panel -->
+        <div class="right-panel">
+
+            <div class="timer-card">
+                <div class="timer-info">
+                    <span class="timer-label">Time Remaining</span>
+                    <div class="timer-value" id="timerValueContainer">
+                        <span id="timer">30</span>
+                        <span class="sec">sec</span>
+                    </div>
+                </div>
+                <div class="timer-icon" style="color: var(--primary);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="video-container">
+                <div class="video-header">
+                    <div class="camera-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        Your Camera
+                    </div>
+                    <div class="recording-badge" style="display: none;">
+                        Recording
+                    </div>
+                </div>
+                <!-- Playsinline and muted often required for autoplay without issues -->
+                <video id="video" autoplay playsinline muted></video>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Setup Context labels
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            let subject = urlParams.get("subject");
+            let difficulty = urlParams.get("difficulty");
+
+            if (subject) {
+                const displayMap = {
+                    'dsa': 'Data Structures & Algorithms',
+                    'os': 'Operating Systems',
+                    'dbms': 'Database Management Systems',
+                    'networks': 'Computer Networks'
+                };
+                document.getElementById('displaySubject').textContent = displayMap[subject.toLowerCase()] || subject.toUpperCase();
+            }
+            if (difficulty) {
+                document.getElementById('displayDifficulty').textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+            }
+        });
+
+        let allRecordings = [];
+        let recordedChunks = [];
+
+        const video = document.getElementById("video");
+        const timerDisplay = document.getElementById("timer");
+        const timerValueContainer = document.getElementById("timerValueContainer");
+
+        const recordingBadge = document.querySelector(".recording-badge");
+        const questions = JSON.parse('{{ questions|tojson|safe }}');
+        document.getElementById("qTotal").innerText = questions.length;
+        let currentQuestionIndex = 0;
+
+        let countdown;
+        let timeLeft = 30;
+
+        let mediaRecorder;
+
+        navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true
+            }
+        })
+            .then(stream => {
+                video.srcObject = stream;
+
+                mediaRecorder = new MediaRecorder(stream);
+
+                mediaRecorder.ondataavailable = event => {
+                    if (event.data.size > 0) {
+                        recordedChunks.push(event.data);
+                    }
+                };
+
+                recordingBadge.style.display = "none";
+                mediaRecorder.onstop = async () => {
+
+                    const blob = new Blob(recordedChunks, { type: "video/webm" });
+                    allRecordings.push(blob);
+
+                    currentQuestionIndex++;
+
+                    if (currentQuestionIndex < questions.length) {
+                        loadQuestion();
+                        document.getElementById("status").innerHTML =
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg> Listening to question...';
+                        setTimeout(speakQuestion, 1000);
+                        return;
+                    }
+
+                    document.getElementById("status").innerHTML =
+                        '<svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg> AI evaluation in progress...';
+
+                    const formData = new FormData();
+
+                    allRecordings.forEach((blob, index) => {
+                        formData.append("video" + index, blob);
+                    });
+
+                    const response = await fetch("/upload", {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    const html = await response.text();
+                    document.open();
+                    document.write(html);
+                    document.close();
+                };
+
+            })
+            .catch(err => {
+                alert("Camera access denied! Please allow permissions to use the live interview feature.");
+            });
+
+        function loadQuestion() {
+            document.getElementById("question").innerText =
+                questions[currentQuestionIndex].question;
+
+            // Update question number
+            document.getElementById("qNum").innerText =
+                currentQuestionIndex + 1;
+
+            // Update progress bar
+            const progress =
+                ((currentQuestionIndex + 1) / questions.length) * 100;
+
+            document.getElementById("progressFill").style.width =
+                progress + "%";
+        }
+
+        function speakQuestion() {
+            const questionText = questions[currentQuestionIndex].question;
+            const speech = new SpeechSynthesisUtterance(questionText);
+
+            speech.onend = () => {
+                document.getElementById("status").innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Answer now...';
+                setTimeout(startAutoRecording, 2000);
+            };
+
+            window.speechSynthesis.speak(speech);
+        }
+
+        function startAutoRecording() {
+            recordingBadge.style.display = "flex";
+            timerValueContainer.classList.remove("urgent");
+
+            if (mediaRecorder.state === "recording") return;
+
+            timeLeft = 30;
+            timerDisplay.innerText = timeLeft;
+
+            recordedChunks = [];
+            mediaRecorder.start();
+
+            document.getElementById("status").innerHTML =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> Recording answer...';
+
+            countdown = setInterval(() => {
+                timeLeft--;
+                timerDisplay.innerText = timeLeft;
+
+                if (timeLeft <= 10) {
+                    timerValueContainer.classList.add("urgent");
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    timerValueContainer.classList.remove("urgent");
+                    mediaRecorder.stop();
+                }
+            }, 1000);
+        }
+
+        window.onload = () => {
+            loadQuestion();
+            document.getElementById("status").innerHTML =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg> Listening to question...';
+            setTimeout(speakQuestion, 500);
+        };
+
+        // Quick inline style for spin animation
+        const style = document.createElement('style');
+        style.innerHTML = `
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .animate-spin { animation: spin 1s linear infinite; }
+    `;
+        document.head.appendChild(style);
+    </script>
+
+
+    <!-- THEME SCRIPT -->
+    <script>
+        const initTheme = () => {
+            const savedTheme = localStorage.getItem('theme');
+            const sunIcon = document.getElementById('sunIcon');
+            const moonIcon = document.getElementById('moonIcon');
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                if (sunIcon) sunIcon.style.display = 'block';
+                if (moonIcon) moonIcon.style.display = 'none';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                if (sunIcon) sunIcon.style.display = 'none';
+                if (moonIcon) moonIcon.style.display = 'block';
+            }
+        };
+
+        const savedThemeInit = localStorage.getItem('theme');
+        if (savedThemeInit === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            initTheme();
+            const themeToggleBtn = document.getElementById('themeToggle');
+            const sunIcon = document.getElementById('sunIcon');
+            const moonIcon = document.getElementById('moonIcon');
+
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    const currentTheme = document.documentElement.getAttribute('data-theme');
+                    let targetTheme = 'light';
+                    if (currentTheme === 'light' || !currentTheme) {
+                        targetTheme = 'dark';
+                        if (sunIcon) sunIcon.style.display = 'block';
+                        if (moonIcon) moonIcon.style.display = 'none';
+                    } else {
+                        targetTheme = 'light';
+                        if (sunIcon) sunIcon.style.display = 'none';
+                        if (moonIcon) moonIcon.style.display = 'block';
+                    }
+                    document.documentElement.setAttribute('data-theme', targetTheme);
+                    localStorage.setItem('theme', targetTheme);
+                });
+            }
+        });
+    </script>
+
+</body>
+
+</html>

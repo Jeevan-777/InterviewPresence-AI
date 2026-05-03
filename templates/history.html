@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview History | InterviewPresence AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ─── Light Theme Variables (default) ─── */
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-light: #f3f4f6;
+            --surface: #ffffff;
+            --surface-alt: #f9fafb;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --text-body: #4b5563;
+            --border: #e5e7eb;
+            --table-header-bg: #f9fafb;
+            --table-row-hover: #f3f4f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+            --score-good-bg: #d1fae5;
+            --score-good-text: #065f46;
+            --score-avg-bg: #fef3c7;
+            --score-avg-text: #92400e;
+            --score-poor-bg: #fee2e2;
+            --score-poor-text: #991b1b;
+        }
+
+        /* ─── Dark Theme Overrides ─── */
+        [data-theme="dark"] {
+            --bg-light: #111827;
+            --surface: #1f2937;
+            --surface-alt: #111827;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --text-body: #d1d5db;
+            --border: #374151;
+            --table-header-bg: #111827;
+            --table-row-hover: #374151;
+            --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+            --score-good-bg: rgba(6, 95, 70, 0.25);
+            --score-good-text: #6ee7b7;
+            --score-avg-bg: rgba(146, 64, 14, 0.25);
+            --score-avg-text: #fcd34d;
+            --score-poor-bg: rgba(153, 27, 27, 0.25);
+            --score-poor-text: #fca5a5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-body);
+            min-height: 100vh;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .dashboard-container {
+            max-width: 1100px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Header Section */
+        .header {
+            text-align: left;
+            margin-bottom: 0.5rem;
+        }
+
+        .header h2 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.025em;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            transition: color 0.3s ease;
+        }
+
+        /* Summary Stats Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+        }
+
+        @media (min-width: 768px) {
+            .summary-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .stat-card {
+            background-color: var(--surface);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .stat-value {
+            font-size: 1.875rem;
+            font-weight: 800;
+            color: var(--text-main);
+            transition: color 0.3s ease;
+        }
+
+        /* Card Style */
+        .card {
+            background-color: var(--surface);
+            border-radius: 16px;
+            box-shadow: var(--shadow-card);
+            padding: 2rem;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            transition: color 0.3s ease;
+        }
+
+        /* Chart Section */
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            max-width: 100%;
+        }
+
+        /* Table Section */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            max-height: 500px;
+            overflow-y: auto;
+            transition: border-color 0.3s ease;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            min-width: 800px;
+            position: relative;
+        }
+
+        th,
+        td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+        }
+
+        th {
+            background-color: var(--table-header-bg);
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 1px 0 var(--border);
+            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        td {
+            font-size: 0.95rem;
+            color: var(--text-body);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr {
+            transition: background-color 0.2s ease;
+        }
+
+        tr:hover {
+            background-color: var(--table-row-hover);
+        }
+
+        /* Final Score Colors */
+        .score-highlight {
+            font-weight: 700;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            display: inline-block;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .score-good {
+            color: var(--score-good-text);
+            background-color: var(--score-good-bg);
+        }
+
+        .score-avg {
+            color: var(--score-avg-text);
+            background-color: var(--score-avg-bg);
+        }
+
+        .score-poor {
+            color: var(--score-poor-text);
+            background-color: var(--score-poor-bg);
+        }
+
+        /* Difficulty Badge Colors */
+        .badge-difficulty {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: capitalize;
+            border: 1px solid transparent;
+        }
+
+        .diff-easy {
+            background-color: #dcfce7;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        .diff-medium {
+            background-color: #ffedd5;
+            color: #9a3412;
+            border-color: #fed7aa;
+        }
+
+        .diff-hard {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        [data-theme="dark"] .diff-easy {
+            background-color: rgba(22, 101, 52, 0.25);
+            color: #6ee7b7;
+            border-color: #065f46;
+        }
+
+        [data-theme="dark"] .diff-medium {
+            background-color: rgba(154, 52, 18, 0.25);
+            color: #fdba74;
+            border-color: #9a3412;
+        }
+
+        [data-theme="dark"] .diff-hard {
+            background-color: rgba(153, 27, 27, 0.25);
+            color: #fca5a5;
+            border-color: #991b1b;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 3rem !important;
+            font-style: italic;
+            color: var(--text-muted);
+            background-color: var(--surface-alt);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Navigation */
+        .nav-actions {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.875rem 2rem;
+            background-color: var(--surface);
+            color: var(--text-main);
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .back-link:hover {
+            background-color: var(--table-row-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ─── Theme Toggle ─── */
+        .theme-toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            z-index: 9999;
+        }
+
+        .theme-toggle-btn:hover {
+            background-color: var(--border);
+            color: var(--text-main);
+        }
+
+        .theme-toggle-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .fixed-theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ─── Clear History Button ─── */
+        .history-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 16px;
+        }
+
+        .clear-btn {
+            background: transparent;
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.6);
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.25s ease;
+        }
+
+        .clear-btn:hover {
+            background: #ef4444;
+            color: #ffffff;
+            border-color: #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+        }
+
+        .clear-btn:active {
+            transform: scale(0.96);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Theme Toggle (Fixed, top-right) -->
+    <button id="themeToggle" class="theme-toggle-btn fixed-theme-toggle" aria-label="Toggle Theme">
+        <svg id="sunIcon" style="display: none;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+    </button>
+
+    <div class="dashboard-container">
+
+        <div class="header">
+            <h2>Interview History</h2>
+            <p>Track your past interview performance and analyze your progress over time.</p>
+        </div>
+
+        {% if rows|length > 0 %}
+        <!-- Summary Stats Section -->
+        <div class="summary-grid">
+            <div class="stat-card">
+                <span class="stat-title">Total Attempts</span>
+                <span class="stat-value" id="statTotal">-</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-title">Average Score</span>
+                <span class="stat-value" id="statAvg">-</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-title">Best Score</span>
+                <span class="stat-value" id="statBest">-</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-title">Latest Score</span>
+                <span class="stat-value" id="statLatest">-</span>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="card chart-card">
+            <div class="card-header">
+                <h3 class="card-title">Performance Trend</h3>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="scoreChart"></canvas>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="history-actions">
+            <form action="/clear_history" method="POST"
+                onsubmit="return confirm('Are you sure you want to clear all history?');">
+                <button type="submit" class="clear-btn">🗑 Clear History</button>
+            </form>
+        </div>
+
+        <!-- Table Section -->
+        <div class="card table-card">
+            <div class="card-header">
+                <h3 class="card-title">Detailed Attempt Logs</h3>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Subject</th>
+                            <th>Difficulty</th>
+                            <th>Face</th>
+                            <th>Eye</th>
+                            <th>Speech</th>
+                            <th>Answer</th>
+                            <th>Final Score</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if rows|length == 0 %}
+                        <tr>
+                            <td colspan="9" class="no-data">
+                                No interview attempts yet. Complete an interview to see your history here.
+                            </td>
+                        </tr>
+                        {% endif %}
+
+                        {% for attempt in rows %}
+                        <tr>
+                            <td>#{{ attempt[0] }}</td>
+                            <td style="font-weight: 600; color: var(--text-main);">{{ attempt[1] }}</td>
+
+                            <!-- Difficulty Badge -->
+                            <td>
+                                {% set diff = attempt[2]|lower %}
+                                <span class="badge-difficulty 
+                                    {% if diff == 'easy' %}diff-easy
+                                    {% elif diff == 'medium' %}diff-medium
+                                    {% elif diff == 'hard' %}diff-hard
+                                    {% endif %}">
+                                    {{ attempt[2] }}
+                                </span>
+                            </td>
+
+                            <td>{{ "%.1f"|format(attempt[3]) }}%</td>
+                            <td>{{ "%.1f"|format(attempt[4]) }}%</td>
+                            <td>{{ "%.1f"|format(attempt[5]) }}%</td>
+                            <td>{{ "%.1f"|format(attempt[6]) }}%</td>
+
+                            <!-- Final Score Highlight -->
+                            <td>
+                                {% set sc = attempt[7]|float %}
+                                <span class="score-highlight 
+                                    {% if sc > 70 %}score-good
+                                    {% elif sc >= 40 %}score-avg
+                                    {% else %}score-poor
+                                    {% endif %}">
+                                    {{ "%.1f"|format(attempt[7]) }}/100
+                                </span>
+                            </td>
+
+                            <td style="color: var(--text-muted); font-size: 0.875rem;">{{ attempt[8] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="nav-actions">
+            <a href="/" class="back-link">Back to Dashboard</a>
+        </div>
+
+    </div>
+
+    {% if rows|length > 0 %}
+    <script>
+        const attemptScores = {{ final_scores | tojson }};
+        const attemptLabels = {{ labels | tojson }};
+        const technicalScores = {{ technical_scores | tojson }};
+        const hrScores = {{ hr_scores | tojson }};
+        const behavioralScores = {{ behavioral_scores | tojson }};
+
+        // Populate Summary Stats
+        if (attemptScores.length > 0) {
+            document.getElementById('statTotal').innerText = attemptScores.length;
+
+            const sum = attemptScores.reduce((a, b) => a + b, 0);
+            const avg = (sum / attemptScores.length).toFixed(1);
+            document.getElementById('statAvg').innerText = avg;
+
+            const best = Math.max(...attemptScores).toFixed(1);
+            document.getElementById('statBest').innerText = best;
+
+            const latest = attemptScores[attemptScores.length - 1].toFixed(1);
+            document.getElementById('statLatest').innerText = latest;
+        }
+
+        const ctx = document.getElementById('scoreChart').getContext('2d');
+
+        Chart.defaults.font.family = "'Inter', sans-serif";
+
+        // Helper to detect dark mode for chart colors
+        const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark';
+
+        const getChartColors = () => ({
+            gridColor: isDark() ? 'rgba(255,255,255,0.08)' : '#e5e7eb',
+            tickColor: isDark() ? '#9ca3af' : '#6b7280',
+        });
+
+        const chartColors = getChartColors();
+        Chart.defaults.color = chartColors.tickColor;
+
+        // For single-point datasets, tension must be 0 — bezier curves suppress lone points
+        const chartTension = attemptLabels.length <= 1 ? 0 : 0.4;
+
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: attemptLabels,
+                datasets: [
+                    {
+                        label: 'Technical',
+                        data: technicalScores,
+                        backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                        borderColor: '#4f46e5',
+                        borderWidth: 2.5,
+                        pointBackgroundColor: isDark() ? '#1f2937' : '#ffffff',
+                        pointBorderColor: '#4f46e5',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        tension: chartTension,
+                        fill: false,
+                        spanGaps: true,
+                        showLine: true
+                    },
+                    {
+                        label: 'HR',
+                        data: hrScores,
+                        backgroundColor: 'rgba(34, 197, 94, 0.08)',
+                        borderColor: '#22c55e',
+                        borderWidth: 2.5,
+                        pointBackgroundColor: isDark() ? '#1f2937' : '#ffffff',
+                        pointBorderColor: '#22c55e',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        tension: chartTension,
+                        fill: false,
+                        spanGaps: true,
+                        showLine: true
+                    },
+                    {
+                        label: 'Behavioral',
+                        data: behavioralScores,
+                        backgroundColor: 'rgba(245, 158, 11, 0.08)',
+                        borderColor: '#f59e0b',
+                        borderWidth: 2.5,
+                        pointBackgroundColor: isDark() ? '#1f2937' : '#ffffff',
+                        pointBorderColor: '#f59e0b',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        tension: chartTension,
+                        fill: false,
+                        spanGaps: true,
+                        showLine: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 8,
+                            font: { weight: '600' }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: isDark() ? '#374151' : '#111827',
+                        titleFont: { size: 13, family: "'Inter', sans-serif" },
+                        bodyFont: { size: 14, weight: 'bold', family: "'Inter', sans-serif" },
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: true,
+                        filter: item => item.raw !== null
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false, drawBorder: false },
+                        ticks: { color: chartColors.tickColor }
+                    },
+                    y: {
+                        min: 0,
+                        max: 100,
+                        grid: {
+                            color: chartColors.gridColor,
+                            drawBorder: false,
+                            borderDash: [5, 5]
+                        },
+                        ticks: {
+                            stepSize: 20,
+                            color: chartColors.tickColor
+                        }
+                    }
+                }
+            }
+        });
+
+        // Update chart colors when theme attribute changes
+        new MutationObserver(() => {
+            const c = getChartColors();
+            chart.options.scales.x.ticks.color = c.tickColor;
+            chart.options.scales.y.ticks.color = c.tickColor;
+            chart.options.scales.y.grid.color = c.gridColor;
+            chart.options.plugins.tooltip.backgroundColor = isDark() ? '#374151' : '#111827';
+            // Refresh point fill colour per dataset
+            chart.data.datasets.forEach(ds => {
+                ds.pointBackgroundColor = isDark() ? '#1f2937' : '#ffffff';
+            });
+            Chart.defaults.color = c.tickColor;
+            chart.update('none');
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    </script>
+    {% endif %}
+
+    <!-- THEME SCRIPT -->
+    <script>
+        // Apply theme before paint to avoid flash
+        const savedThemeInit = localStorage.getItem('theme');
+        if (savedThemeInit === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const sunIcon = document.getElementById('sunIcon');
+            const moonIcon = document.getElementById('moonIcon');
+            const themeToggleBtn = document.getElementById('themeToggle');
+
+            // Sync icon with current theme
+            const syncIcons = (theme) => {
+                if (theme === 'dark') {
+                    if (sunIcon) sunIcon.style.display = 'block';
+                    if (moonIcon) moonIcon.style.display = 'none';
+                } else {
+                    if (sunIcon) sunIcon.style.display = 'none';
+                    if (moonIcon) moonIcon.style.display = 'block';
+                }
+            };
+
+            syncIcons(localStorage.getItem('theme') || 'light');
+
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    const currentTheme = document.documentElement.getAttribute('data-theme');
+                    const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', targetTheme);
+                    localStorage.setItem('theme', targetTheme);
+                    syncIcons(targetTheme);
+                });
+            }
+        });
+    </script>
+
+</body>
+
+</html>

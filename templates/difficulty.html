@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Difficulty - InterviewPresence AI</title>
+    <!-- Google Fonts for modern SaaS aesthetics -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-base: #f9fafb;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --card-bg: #ffffff;
+            --card-border: #e5e7eb;
+
+            /* Easy Theme */
+            --easy-color: #059669;
+            /* Slightly darker green for contrast */
+            --easy-bg: rgba(16, 185, 129, 0.1);
+            --easy-border: rgba(16, 185, 129, 0.4);
+            --easy-shadow: rgba(16, 185, 129, 0.15);
+
+            /* Medium Theme */
+            --medium-color: #d97706;
+            /* Slightly darker orange for contrast */
+            --medium-bg: rgba(245, 158, 11, 0.1);
+            --medium-border: rgba(245, 158, 11, 0.4);
+            --medium-shadow: rgba(245, 158, 11, 0.15);
+
+            /* Hard Theme */
+            --hard-color: #dc2626;
+            /* Slightly darker red for contrast */
+            --hard-bg: rgba(239, 68, 68, 0.1);
+            --hard-border: rgba(239, 68, 68, 0.4);
+            --hard-shadow: rgba(239, 68, 68, 0.15);
+
+            --gradient-text: linear-gradient(135deg, #111827 0%, #374151 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-base);
+            background-image:
+                radial-gradient(circle at 85% 50%, rgba(99, 102, 241, 0.05), transparent 35%),
+                radial-gradient(circle at 15% 20%, rgba(56, 189, 248, 0.04), transparent 35%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 3.5rem;
+            animation: fadeUp 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        .header-section {
+            text-align: center;
+        }
+
+        .subject-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 1.25rem;
+            letter-spacing: 0.025em;
+            text-transform: uppercase;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .subject-badge span {
+            color: var(--text-primary);
+            margin-left: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header-section h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.025em;
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-section p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        .difficulty-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .difficulty-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 1.25rem;
+            padding: 2rem 1.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .difficulty-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .card-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-icon svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .difficulty-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .difficulty-desc {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        .card-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .card-action svg {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* --- Easy Card Styles --- */
+        .card-easy {
+            border-top: 3px solid transparent;
+        }
+
+        .card-easy .card-icon {
+            background: var(--easy-bg);
+            color: var(--easy-color);
+        }
+
+        .card-easy .card-action {
+            background: var(--easy-bg);
+            color: var(--easy-color);
+        }
+
+        .card-easy:hover {
+            transform: translateY(-8px);
+            border-color: var(--card-border);
+            border-top-color: var(--easy-color);
+            box-shadow: 0 16px 32px -10px var(--easy-shadow);
+        }
+
+        .card-easy:hover::after {
+            background: linear-gradient(180deg, rgba(16, 185, 129, 0.03) 0%, transparent 100%);
+            opacity: 1;
+        }
+
+        .card-easy:hover .card-icon,
+        .card-easy:hover .card-action svg {
+            transform: scale(1.05);
+        }
+
+        /* --- Medium Card Styles --- */
+        .card-medium {
+            border-top: 3px solid transparent;
+        }
+
+        .card-medium .card-icon {
+            background: var(--medium-bg);
+            color: var(--medium-color);
+        }
+
+        .card-medium .card-action {
+            background: var(--medium-bg);
+            color: var(--medium-color);
+        }
+
+        .card-medium:hover {
+            transform: translateY(-8px);
+            border-color: var(--card-border);
+            border-top-color: var(--medium-color);
+            box-shadow: 0 16px 32px -10px var(--medium-shadow);
+        }
+
+        .card-medium:hover::after {
+            background: linear-gradient(180deg, rgba(245, 158, 11, 0.03) 0%, transparent 100%);
+            opacity: 1;
+        }
+
+        .card-medium:hover .card-icon,
+        .card-medium:hover .card-action svg {
+            transform: scale(1.05);
+        }
+
+        /* --- Hard Card Styles --- */
+        .card-hard {
+            border-top: 3px solid transparent;
+        }
+
+        .card-hard .card-icon {
+            background: var(--hard-bg);
+            color: var(--hard-color);
+        }
+
+        .card-hard .card-action {
+            background: var(--hard-bg);
+            color: var(--hard-color);
+        }
+
+        .card-hard:hover {
+            transform: translateY(-8px);
+            border-color: var(--card-border);
+            border-top-color: var(--hard-color);
+            box-shadow: 0 16px 32px -10px var(--hard-shadow);
+        }
+
+        .card-hard:hover::after {
+            background: linear-gradient(180deg, rgba(239, 68, 68, 0.03) 0%, transparent 100%);
+            opacity: 1;
+        }
+
+        .card-hard:hover .card-icon,
+        .card-hard:hover .card-action svg {
+            transform: scale(1.05);
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 900px) {
+            .difficulty-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-section h1 {
+                font-size: 2.5rem;
+            }
+
+            .container {
+                gap: 2.5rem;
+            }
+        }
+    </style>
+
+    <!-- THEME INJECTION -->
+    <style>
+        [data-theme="dark"] {
+            --bg-light: #111827;
+            --bg-base: #111827;
+            --bg: #111827;
+            --surface: #1f2937;
+            --card-bg: #1f2937;
+            --text-main: #f9fafb;
+            --text-primary: #f9fafb;
+            --text-muted: #9ca3af;
+            --text-secondary: #9ca3af;
+            --border: #374151;
+            --card-border: #374151;
+            --icon-bg: #374151;
+            --gradient-text: linear-gradient(135deg, #f9fafb 0%, #9ca3af 100%);
+        }
+
+        body,
+        nav,
+        .topbar,
+        .session-info-bar,
+        .question-card,
+        .timer-card,
+        .video-container,
+        .badge,
+        .status-badge,
+        .guidance-panel,
+        .guidance-text,
+        span,
+        h4,
+        div,
+        .subject-card,
+        .difficulty-card,
+        .feature-card,
+        .stats-empty-state,
+        .split-layout,
+        .brand-panel,
+        .form-card,
+        section,
+        header,
+        main,
+        h1,
+        h2,
+        h3,
+        p {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .theme-toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted, var(--text-secondary, var(--primary, #6b7280)));
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            z-index: 9999;
+        }
+
+        .theme-toggle-btn:hover {
+            background-color: var(--border, var(--card-border, #e5e7eb));
+            color: var(--text-main, var(--text-primary, #111827));
+        }
+
+        .theme-toggle-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .fixed-theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1.5rem;
+            background: var(--surface, var(--card-bg, #ffffff));
+            border: 1px solid var(--border, var(--card-border, #e5e7eb));
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- THEME TOGGLE FIXED -->
+    <button id="themeToggle" class="theme-toggle-btn fixed-theme-toggle" aria-label="Toggle Theme">
+        <svg id="sunIcon" style="display: none;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+    </button>
+
+
+    <main class="container">
+        <header class="header-section">
+            <div class="subject-badge">
+                Selected Subject: <span id="display-subject">Loading...</span>
+            </div>
+            <h1>Select Difficulty</h1>
+            <p>Determine the challenge level for your mock interview. Each tier scales the complexity of technical
+                questions.</p>
+        </header>
+
+        <div class="difficulty-grid">
+
+            <!-- Easy -->
+            <a onclick="startInterview('easy')" class="difficulty-card card-easy">
+                <div class="card-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                </div>
+                <h2 class="difficulty-title" style="color: var(--easy-color);">Easy</h2>
+                <p class="difficulty-desc">Foundational concepts and direct questions. Perfect for warming up or
+                    entry-level roles.</p>
+                <div class="card-action">
+                    <span>Start Easy Session</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+                        stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                    </svg>
+                </div>
+            </a>
+
+            <!-- Medium -->
+            <a onclick="startInterview('medium')" class="difficulty-card card-medium">
+                <div class="card-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                    </svg>
+                </div>
+                <h2 class="difficulty-title" style="color: var(--medium-color);">Medium</h2>
+                <p class="difficulty-desc">Standard industry questions requiring solid technical understanding and
+                    application skills.</p>
+                <div class="card-action">
+                    <span>Start Medium Session</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+                        stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                    </svg>
+                </div>
+            </a>
+
+            <!-- Hard -->
+            <a onclick="startInterview('hard')" class="difficulty-card card-hard">
+                <div class="card-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.866 8.284 8.284 0 0 0 3 2.48Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z" />
+                    </svg>
+                </div>
+                <h2 class="difficulty-title" style="color: var(--hard-color);">Hard</h2>
+                <p class="difficulty-desc">Advanced concepts, edge cases, and in-depth problem solving expected at
+                    top-tier companies.</p>
+                <div class="card-action">
+                    <span>Start Hard Session</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+                        stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                    </svg>
+                </div>
+            </a>
+
+        </div>
+    </main>
+
+    <script>
+        // Update the UI to show the selected subject from the URL
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            let subject = urlParams.get("subject");
+
+            if (subject) {
+                // Map the URL parameter to a nice display name
+                const displayMap = {
+                    'dsa': 'Data Structures & Algorithms',
+                    'os': 'Operating Systems',
+                    'dbms': 'Database Management Systems',
+                    'networks': 'Computer Networks'
+                };
+
+                const formattedSubject = displayMap[subject.toLowerCase()] || subject.toUpperCase();
+                document.getElementById('display-subject').textContent = formattedSubject;
+            } else {
+                document.getElementById('display-subject').textContent = 'General Interview';
+            }
+        });
+
+        // Original script logic, explicitly untouched URL flow
+        function startInterview(level) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const subject = urlParams.get("subject") || "general";
+
+            window.location.href = "/interview?subject=" + subject + "&difficulty=" + level;
+        }
+    </script>
+
+    <!-- THEME SCRIPT -->
+    <script>
+        const initTheme = () => {
+            const savedTheme = localStorage.getItem('theme');
+            const sunIcon = document.getElementById('sunIcon');
+            const moonIcon = document.getElementById('moonIcon');
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                if (sunIcon) sunIcon.style.display = 'block';
+                if (moonIcon) moonIcon.style.display = 'none';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                if (sunIcon) sunIcon.style.display = 'none';
+                if (moonIcon) moonIcon.style.display = 'block';
+            }
+        };
+
+        const savedThemeInit = localStorage.getItem('theme');
+        if (savedThemeInit === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            initTheme();
+            const themeToggleBtn = document.getElementById('themeToggle');
+            const sunIcon = document.getElementById('sunIcon');
+            const moonIcon = document.getElementById('moonIcon');
+
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    const currentTheme = document.documentElement.getAttribute('data-theme');
+                    let targetTheme = 'light';
+                    if (currentTheme === 'light' || !currentTheme) {
+                        targetTheme = 'dark';
+                        if (sunIcon) sunIcon.style.display = 'block';
+                        if (moonIcon) moonIcon.style.display = 'none';
+                    } else {
+                        targetTheme = 'light';
+                        if (sunIcon) sunIcon.style.display = 'none';
+                        if (moonIcon) moonIcon.style.display = 'block';
+                    }
+                    document.documentElement.setAttribute('data-theme', targetTheme);
+                    localStorage.setItem('theme', targetTheme);
+                });
+            }
+        });
+    </script>
+
+</body>
+
+</html>

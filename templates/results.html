@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Results | InterviewPresence AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-light: #f3f4f6;
+            --surface: #ffffff;
+            --text-main: #111827;
+            --text-muted: #4b5563;
+            --border: #e5e7eb;
+            --success-bg: #dcfce7;
+            --success-text: #166534;
+            --warning-bg: #fef9c3;
+            --warning-text: #854d0e;
+            --danger-bg: #fee2e2;
+            --danger-text: #991b1b;
+            --shadow-subtle: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --shadow-bold: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --progress-bg: #e5e7eb;
+        }
+
+        [data-theme="dark"] {
+            --bg-light: #111827;
+            --surface: #1f2937;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --border: #374151;
+            --success-bg: rgba(22, 101, 52, 0.2);
+            --success-text: #4ade80;
+            --warning-bg: rgba(133, 77, 14, 0.2);
+            --warning-text: #fde047;
+            --danger-bg: rgba(153, 27, 27, 0.2);
+            --danger-text: #f87171;
+            --shadow-subtle: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            --shadow-bold: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+            --progress-bg: #374151;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-muted);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .dashboard-container {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: var(--shadow-bold);
+            max-width: 900px;
+            width: 100%;
+            padding: 2.5rem;
+            overflow: hidden;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.025em;
+            transition: color 0.3s ease;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 2fr;
+            }
+        }
+
+        /* Score Section */
+        .score-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow-subtle);
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            /* conic-gradient is set via inline style on the element using the Jinja {{ score }} value */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-bottom: 1.5rem;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-circle::before {
+            content: "";
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background-color: var(--surface);
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        .score-value {
+            position: relative;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1;
+            transition: color 0.3s ease;
+        }
+
+        .score-value small {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+            transition: color 0.3s ease;
+        }
+
+        .score-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .difficulty-badge {
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            padding: 0.35rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+            border: 1px solid var(--border);
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* Metrics Section */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+        }
+
+        @media (max-width: 500px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .metric-card {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .metric-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: color 0.3s ease;
+        }
+
+        .metric-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            transition: color 0.3s ease;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background-color: var(--progress-bg);
+            border-radius: 9999px;
+            overflow: hidden;
+            transition: background-color 0.3s ease;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--primary);
+            border-radius: 9999px;
+            transition: width 1s ease-in-out, background-color 0.3s ease;
+        }
+
+        /* Performance Message */
+        .performance-message {
+            margin-top: 2rem;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .alert-success {
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid var(--success-text);
+        }
+
+        .alert-warning {
+            background-color: var(--warning-bg);
+            color: var(--warning-text);
+            border: 1px solid var(--warning-text);
+        }
+
+        .alert-danger {
+            background-color: var(--danger-bg);
+            color: var(--danger-text);
+            border: 1px solid var(--danger-text);
+        }
+
+        /* Feedback Section */
+        .feedback-section {
+            margin-top: 2rem;
+            background-color: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .feedback-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .feedback-title svg {
+            width: 20px;
+            height: 20px;
+            color: var(--primary);
+        }
+
+        .feedback-list {
+            list-style: none;
+        }
+
+        .feedback-list li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+            color: var(--text-muted);
+            transition: color 0.3s ease;
+        }
+
+        .feedback-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .feedback-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            top: -2px;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        /* Action Section */
+        .action-section {
+            margin-top: 2.5rem;
+            text-align: center;
+        }
+
+        .action-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.875rem 2rem;
+            background-color: var(--primary);
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+        }
+
+        .action-button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px -1px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Theme Toggle Button Specific Styles */
+        .theme-toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            z-index: 9999;
+        }
+
+        .theme-toggle-btn:hover {
+            background-color: var(--border);
+            color: var(--text-main);
+        }
+
+        .theme-toggle-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .fixed-theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- THEME TOGGLE FIXED -->
+    <button id="themeToggle" class="theme-toggle-btn fixed-theme-toggle" aria-label="Toggle Theme">
+        <svg id="sunIcon" style="display: none;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+    </button>
+
+    <div class="dashboard-container">
+
+        <div class="header">
+            <h2>Interview Results</h2>
+        </div>
+
+        <div class="dashboard-grid">
+
+            <!-- Left Column: Final Score -->
+            <div class="score-section">
+                <div class="score-title">Final Confidence Score</div>
+                <div class="score-circle" style="background: conic-gradient(#4f46e5 {{ score }}%, #e5e7eb 0%);">
+                    <div class="score-value">
+                        {{ score }}
+                        <small>/100</small>
+                    </div>
+                </div>
+                <div class="difficulty-badge">Difficulty: {{ difficulty|capitalize }}</div>
+            </div>
+
+            <!-- Right Column: Metrics -->
+            <div class="metrics-grid">
+
+                <!-- Metric: Face Presence -->
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">Face Presence</span>
+                        <span class="metric-value">{{ face }}%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: {{ face }}%;"></div>
+                    </div>
+                </div>
+
+                <!-- Metric: Eye Contact -->
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">Eye Contact</span>
+                        <span class="metric-value">{{ eye }}%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: {{ eye }}%;"></div>
+                    </div>
+                </div>
+
+                <!-- Metric: Speech Activity -->
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">Speech Activity</span>
+                        <span class="metric-value">{{ speech }}%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: {{ speech }}%;"></div>
+                    </div>
+                </div>
+
+                <!-- Metric: Answer Quality -->
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">Answer Quality</span>
+                        <span class="metric-value">{{ answer_score }}%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: {{ answer_score }}%;"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Overall Result Message -->
+        <div class="performance-message">
+            {% if score > 80 %}
+            <div class="alert alert-success"><span>Excellent performance!</span></div>
+            {% elif score > 60 %}
+            <div class="alert alert-warning"><span>Good performance. Keep practicing.</span></div>
+            {% else %}
+            <div class="alert alert-danger"><span>Needs improvement. Try again.</span></div>
+            {% endif %}
+        </div>
+
+        <!-- Feedback Section -->
+        <div class="feedback-section">
+            <h3 class="feedback-title">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Smart Feedback
+            </h3>
+            <ul class="feedback-list">
+                {% for item in feedback %}
+                <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Action Section -->
+        <div class="action-section">
+            <a href="/" class="action-button">Take Another Interview</a>
+        </div>
+
+    </div>
+
+    <!-- THEME SCRIPT -->
+    <script>
+        // Apply theme before paint to avoid flash
+        const _savedTheme = localStorage.getItem('theme');
+        document.documentElement.setAttribute('data-theme', _savedTheme === 'dark' ? 'dark' : 'light');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const sunIcon = document.getElementById('sunIcon');
+            const moonIcon = document.getElementById('moonIcon');
+            const themeToggleBtn = document.getElementById('themeToggle');
+
+            const syncIcons = (theme) => {
+                if (sunIcon) sunIcon.style.display = theme === 'dark' ? 'block' : 'none';
+                if (moonIcon) moonIcon.style.display = theme === 'dark' ? 'none' : 'block';
+            };
+
+            syncIcons(localStorage.getItem('theme') || 'light');
+
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    const current = document.documentElement.getAttribute('data-theme');
+                    const target = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', target);
+                    localStorage.setItem('theme', target);
+                    syncIcons(target);
+                });
+            }
+        });
+    </script>
+
+</body>
+
+</html>
